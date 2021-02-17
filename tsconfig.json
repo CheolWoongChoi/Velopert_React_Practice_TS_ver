@@ -18,7 +18,8 @@
 			"components/*": ["src/components/*"],
 			"actionTypes/*": ["src/store/actionTypes/*"],
 			"actions/*": ["src/store/actions/*"],
-			"reducers/*": ["src/store/reducers/*"]
+			"reducers/*": ["src/store/reducers/*"],
+			"hooks/*": ["src/hooks/*"],
 		}
 	}
 }

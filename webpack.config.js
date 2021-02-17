@@ -19,6 +19,7 @@ module.exports = function(env, argv) {
 				images: path.resolve(__dirname, 'public/images'),
 				constants: path.resolve(__dirname, 'src/constants'),
 				components: path.resolve(__dirname, 'src/components'),
+				hooks: path.resolve(__dirname, 'src/hooks'),
 			}
 		},
 		entry: {

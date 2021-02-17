@@ -1,70 +1,81 @@
 import * as React from 'react';
-import { useRef, useState } from 'react';
-import classNames from 'classnames';
-import styles from './App.scss';
-
+import { useReducer, useMemo } from 'react';
+import classNames from 'classnames/bind';
 import CreateUser from 'components/CreateUser';
 import { default as UserList, User } from 'components/UserList';
+import styles from './App.scss';
 
 const cx = classNames.bind(styles);
 
-function App() {
-  const [inputs, setInputs] = useState({
-    username: '',
-    email: ''
-  });
-  const { username, email } = inputs;
+export const CREATE_USER = 'CREATE_USER';
+export const TOGGLE_USER = 'TOGGLE_USER';
+export const REMOVE_USER = 'REMOVE_USER';
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+function countActiveUsers(users: User[]) {
+  console.log('활성 사용자 수를 세는 중...');
+  return users.filter(user => user.active).length;
+}
 
-    setInputs({
-      ...inputs,
-      [name]: value
-    });
-  }
-
-	const users: User[] = [
+const initialState = {
+  users: [
     {
       id: 1,
       username: 'velopert',
-      email: 'public.velopert@gmail.com'
+      email: 'public.velopert@gmail.com',
+      active: true,
     },
     {
       id: 2,
       username: 'tester',
-      email: 'tester@example.com'
+      email: 'tester@example.com',
+      active: false,
     },
     {
       id: 3,
       username: 'liz',
-      email: 'liz@example.com'
+      email: 'liz@example.com',
+      active: false
     }
-  ];
+  ]
+}
 
-	const nextId = useRef(4);
+function reducer(state = initialState, action: any) {
+  switch(action.type) {
+    case CREATE_USER:
+      return {
+        users: state.users.concat(action.user)
+      };
+    case TOGGLE_USER:
+      return {
+        ...state,
+        users: state.users.map((user: User) =>
+          user.id === action.id ? { ...user, active: !user.active } : user  
+        )
+      };
+    case REMOVE_USER:
+      return {
+        users: state.users.filter((user: User) => user.id !== action.id)
+      };
+    default:
+      return state;
+  }
+}
 
-  const onCreate = () => {
-    // 나중에 구현 할 배열에 항목 추가하는 로직
-    // ...
-    
-    setInputs({
-      username: '',
-      email: ''
-    });
-    nextId.current += 1;
-  };
+export const UserDispatch = React.createContext<any>(null);
+
+function App() {
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const { users } = state;
+  const count = useMemo(() => countActiveUsers(users), [users]);
 
   return (
-    <>
-      <CreateUser 
-        username={username}
-        email={email}
-        onChange={onChange}
-        onCreate={onCreate}
-      />
-      <UserList users={users} />
-    </>
+    <main className={cx('app-main')}>
+      <UserDispatch.Provider value={dispatch}>
+        <CreateUser />
+        <UserList users={users} />
+        <div>활성 사용자 수 : {count}</div>
+      </UserDispatch.Provider>
+    </main>
   );
 }
 
