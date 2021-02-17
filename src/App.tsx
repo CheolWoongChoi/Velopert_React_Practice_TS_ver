@@ -4,6 +4,7 @@ import classNames from 'classnames/bind';
 import CreateUser from 'components/CreateUser';
 import { default as UserList, User } from 'components/UserList';
 import styles from './App.scss';
+import produce from 'immer';
 
 const cx = classNames.bind(styles);
 
@@ -42,20 +43,19 @@ const initialState = {
 function reducer(state = initialState, action: any) {
   switch(action.type) {
     case CREATE_USER:
-      return {
-        users: state.users.concat(action.user)
-      };
+      return produce(state, draft => {
+        draft.users.push(action.user);
+      });
     case TOGGLE_USER:
-      return {
-        ...state,
-        users: state.users.map((user: User) =>
-          user.id === action.id ? { ...user, active: !user.active } : user  
-        )
-      };
+      return produce(state, draft => {
+        const user = draft.users.find(user => user.id === action.id)!;
+        user.active = !user.active;
+      });
     case REMOVE_USER:
-      return {
-        users: state.users.filter((user: User) => user.id !== action.id)
-      };
+      return produce(state, draft => {
+        const index = draft.users.findIndex(user => user.id === action.id);
+        draft.users.splice(index, 1);        
+      });
     default:
       return state;
   }
